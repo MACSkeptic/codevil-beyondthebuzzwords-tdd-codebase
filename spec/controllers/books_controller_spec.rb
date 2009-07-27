@@ -33,3 +33,30 @@ describe BooksController, "creating a valid book" do
   end
 end
 
+describe BooksController, "creating an invalid new book" do
+  before(:each) do
+    @params_for_save = { "title" => "the god delusion", "author" => "richard dawkins" }
+    Book.stub!(:new).and_return(@book = mock_model(Book, :save! => true))
+  end
+
+  def call_create
+    post :create, { :book => @params_for_save }
+  end
+
+  it "should instantiate a new book with the given parameters" do
+    Book.should_receive(:new).with(@params_for_save).and_return(@book)
+    call_create
+  end
+
+  it "should notice the user that the book is invalid" do
+    @book.should_receive(:save!).and_raise(StandardError.new("Error saving the book"))
+    call_create
+  end
+
+  it "should notice the user about the failure" do
+    @book.should_receive(:save!).and_raise(StandardError.new("Error saving the book"))
+    call_create
+    flash.now[:notice].should match(/.*error.*/)
+  end
+end
+
