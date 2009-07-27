@@ -21,5 +21,15 @@ describe BooksController, "creating a valid book" do
     Book.should_receive(:new).with(@params_for_save).and_return(@book)
     call_create
   end
+
+  it "should save the book on the database" do
+    @book.should_receive(:save!).and_return(true)
+    call_create
+  end
+
+  it "should notice the user about the success" do
+    call_create
+    flash.now[:notice].should match(/.*successfully.*/)
+  end
 end
 
